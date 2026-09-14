@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cardápio Digital</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Cardápio Digital</h1>
+    </header>
+
+    <main>
+
+        <section class="inicio">
+            <h2>DELICIAS DA DRI</h2>
+            <p>Escolha seus produtos e monte seu pedido.</p>
+        </section>
+
+        <section class="cardapio">
+
+            <h2>Cardápio</h2>
+
+            <input
+                type="text"
+                id="pesquisa"
+                placeholder="Pesquisar produto..."
+            >
+
+            <select id="filtro">
+                <option value="todos">Todas as categorias</option>
+                <option value="Entradas">Entradas</option>
+                <option value="Prato Principal">Prato Principal</option>
+                <option value="Sobremesas">Sobremesas</option>
+                <option value="Bebidas">Bebidas</option>
+                <option value="Carta de Vinhos">Carta de Vinhos</option>
+            </select>
+
+            <div id="produtos"></div>
+
+        </section>
+
+
+        <section id="pedido" class="pedido">
+
+            <h2>🛒 Meu Pedido</h2>
+
+            <!-- Dados do Cliente -->
+            <div class="dados-cliente" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #ddd;">
+                <h3>Identificação do Cliente</h3>
+                <div style="margin-top: 8px;">
+                    <label for="nomeCliente"><strong>Nome do Cliente:</strong></label><br>
+                    <input type="text" id="nomeCliente" placeholder="Digite seu nome" style="width: 100%; padding: 6px; margin-top: 4px;">
+                </div>
+                <div style="margin-top: 8px;">
+                    <label for="numeroMesa"><strong>Número da Mesa:</strong></label><br>
+                    <input type="number" id="numeroMesa" placeholder="Ex: 5" style="width: 100%; padding: 6px; margin-top: 4px;">
+                </div>
+            </div>
+
+            <div id="listaPedido"></div>
+
+            <p>
+                Subtotal:
+                R$ <span id="subtotal">0.00</span>
+            </p>
+
+            <label>
+                <input type="checkbox" id="garcom">
+                Acrescentar 10% do garçom
+            </label>
+
+            <p>
+                Garçom:
+                R$ <span id="valorGarcom">0.00</span>
+            </p>
+
+            <h2>
+                Total:
+                R$ <span id="total">0.00</span>
+            </h2>
+
+            <!-- BOTÃO FINALIZAR PEDIDO -->
+            <button onclick="finalizarPedido()" style="width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px;">
+                FINALIZAR PEDIDO
+            </button>
+
+        </section>
+
+    </main>
+
+    <script>
+        const produtos = [
+            // --- ENTRADAS ---
+            { id: 1, nome: "BATATA FRITA", categoria: "Entradas", descricao: "Batatas crocantes temperadas com sal e ervas.", preco: 18.00 },
+            { id: 2, nome: "BATATA RÚSTICA", categoria: "Entradas", descricao: "Batatas com casca, assadas e temperadas com ervas.", preco: 22.00 },
+            { id: 3, nome: "DADINHO DE TAPIOCA", categoria: "Entradas", descricao: "Cubos crocantes de tapioca com queijo, acompanhados de molho agridoce.", preco: 24.00 },
+            { id: 4, nome: "BOLINHO DE BACALHAU", categoria: "Entradas", descricao: "Bolinho crocante recheado com bacalhau e temperos.", preco: 28.00 },
+            { id: 5, nome: "COXINHA DE FRANGO", categoria: "Entradas", descricao: "Massa crocante recheada com frango desfiado e temperado.", preco: 20.00 },
+            { id: 6, nome: "PASTELZINHO DE CARNE", categoria: "Entradas", descricao: "Mini pastéis recheados com carne temperada.", preco: 22.00 },
+            { id: 7, nome: "PASTELZINHO DE QUEIJO", categoria: "Entradas", descricao: "Mini pastéis crocantes recheados com queijo derretido.", preco: 22.00 },
+            { id: 8, nome: "CALABRESA ACEBOLADA", categoria: "Entradas", descricao: "Linguiça calabresa grelhada com cebolas douradas.", preco: 26.00 },
+            { id: 9, nome: "FRANGO À PASSARINHO", categoria: "Entradas", descricao: "Pedaços de frango fritos e crocantes, temperados com alho e ervas.", preco: 29.00 },
+            { id: 10, nome: "ISCA DE FRANGO", categoria: "Entradas", descricao: "Tiras de frango empanadas e crocantes, servidas com molho especial.", preco: 28.00 },
+            { id: 11, nome: "ISCA DE CARNE", categoria: "Entradas", descricao: "Tiras de carne grelhadas com cebola e molho da casa.", preco: 32.00 },
+            { id: 12, nome: "CAMARÃO EMPANADO", categoria: "Entradas", descricao: "Camarões crocantes empanados, acompanhados de molho especial.", preco: 38.00 },
+            { id: 13, nome: "CAMARÃO AO ALHO E ÓLEO", categoria: "Entradas", descricao: "Camarões salteados com alho, azeite e ervas.", preco: 40.00 },
+            { id: 14, nome: "ANÉIS DE CEBOLA", categoria: "Entradas", descricao: "Anéis de cebola empanados e fritos até ficarem crocantes.", preco: 20.00 },
+            { id: 15, nome: "QUEIJO COALHO GRELHADO", categoria: "Entradas", descricao: "Cubos de queijo coalho dourados na grelha com melaço.", preco: 25.00 },
+            { id: 16, nome: "PROVOLONE EMPANADO", categoria: "Entradas", descricao: "Cubos de provolone empanados e fritos, servidos com molho.", preco: 26.00 },
+            { id: 17, nome: "MANDIOCA FRITA", categoria: "Entradas", descricao: "Mandioca dourada e crocante, temperada com sal.", preco: 18.00 },
+            { id: 18, nome: "TORRESMO CROCANTE", categoria: "Entradas", descricao: "Torresmo pururuca crocante servido com limão.", preco: 27.00 },
+            { id: 19, nome: "MINI ESPETINHOS", categoria: "Entradas", descricao: "Espetinhos de carne, frango e linguiça acompanhados de molho.", preco: 30.00 },
+            { id: 20, nome: "CARNE DE SOL COM MANDIOCA", categoria: "Entradas", descricao: "Carne de sol acebolada acompanhada de mandioca frita.", preco: 35.00 },
+            { id: 21, nome: "CARNE DE SOL COM QUEIJO COALHO", categoria: "Entradas", descricao: "Carne de sol grelhada com queijo coalho dourado.", preco: 38.00 },
+            { id: 22, nome: "LINGUIÇA ARTESANAL", categoria: "Entradas", descricao: "Linguiça grelhada servida com farofa e vinagrete.", preco: 28.00 },
+            { id: 23, nome: "MINI KIBE", categoria: "Entradas", descricao: "Kibes crocantes recheados com carne temperada.", preco: 22.00 },
+            { id: 24, nome: "BOLINHO DE CARNE", categoria: "Entradas", descricao: "Bolinhos crocantes de carne moída com temperos especiais.", preco: 22.00 },
+            { id: 25, nome: "PÃO DE ALHO", categoria: "Entradas", descricao: "Pães recheados com creme de alho e queijo, assados até dourar.", preco: 18.00 },
+            { id: 26, nome: "BRUSCHETTA", categoria: "Entradas", descricao: "Fatias de pão tostado com tomate, queijo, manjericão e azeite.", preco: 24.00 },
+            { id: 27, nome: "TÁBUA DE FRIOS", categoria: "Entradas", descricao: "Seleção de queijos, salame, presunto, azeitonas e torradas.", preco: 42.00 },
+            { id: 28, nome: "MIX DE PETISCOS", categoria: "Entradas", descricao: "Batata frita, calabresa, frango empanado e anéis de cebola.", preco: 38.00 },
+            { id: 29, nome: "NACHOS COM QUEIJO", categoria: "Entradas", descricao: "Nachos crocantes cobertos com queijo cremoso e molho especial.", preco: 25.00 },
+            { id: 30, nome: "CESTA DE PETISCOS", categoria: "Entradas", descricao: "Porção variada de carnes, frituras, batatas e molhos da casa.", preco: 45.00 },
+
+            // --- PRATOS PRINCIPAIS ---
+            { id: 31, nome: "FILÉ MIGNON AO MOLHO MADEIRA", categoria: "Prato Principal", descricao: "Filé mignon grelhado, servido com molho madeira, arroz branco e batata frita.", preco: 48.00 },
+            { id: 32, nome: "BIFE ACEBOLADO", categoria: "Prato Principal", descricao: "Bife grelhado com cebolas douradas, arroz, feijão e farofa.", preco: 32.00 },
+            { id: 33, nome: "PICANHA GRELHADA", categoria: "Prato Principal", descricao: "Fatias de picanha grelhada, acompanhadas de arroz, farofa e vinagrete.", preco: 52.00 },
+            { id: 34, nome: "CARNE DE SOL COM QUEIJO COALHO", categoria: "Prato Principal", descricao: "Carne de sol acebolada com queijo coalho, arroz, feijão verde e farofa.", preco: 45.00 },
+            { id: 35, nome: "ESCONDIDINHO DE CARNE DE SOL", categoria: "Prato Principal", descricao: "Purê de mandioca cremoso recheado com carne de sol e queijo gratinado.", preco: 38.00 },
+            { id: 36, nome: "FRANGO À PARMEGIANA", categoria: "Prato Principal", descricao: "Filé de frango empanado com molho de tomate, presunto e queijo gratinado.", preco: 36.00 },
+            { id: 37, nome: "FRANGO GRELHADO", categoria: "Prato Principal", descricao: "Filé de frango grelhado acompanhado de arroz, legumes e batata dourada.", preco: 32.00 },
+            { id: 38, nome: "FRANGO AO MOLHO DE MOSTARDA", categoria: "Prato Principal", descricao: "Filé de frango grelhado com molho cremoso de mostarda e ervas.", preco: 35.00 },
+            { id: 39, nome: "FILÉ DE FRANGO COM CATUPIRY", categoria: "Prato Principal", descricao: "Filé de frango grelhado coberto com creme de queijo e acompanhado de arroz.", preco: 37.00 },
+            { id: 40, nome: "STROGONOFF DE CARNE", categoria: "Prato Principal", descricao: "Tiras de carne ao molho cremoso com champignon, arroz branco e batata palha.", preco: 35.00 },
+            { id: 41, nome: "STROGONOFF DE FRANGO", categoria: "Prato Principal", descricao: "Frango em tiras ao molho cremoso, servido com arroz e batata palha.", preco: 32.00 },
+            { id: 42, nome: "PARMEGIANA DE CARNE", categoria: "Prato Principal", descricao: "Bife empanado com molho de tomate, queijo gratinado e presunto.", preco: 42.00 },
+            { id: 43, nome: "LASANHA À BOLONHESA", categoria: "Prato Principal", descricao: "Camadas de massa, carne moída, molho de tomate e queijo gratinado.", preco: 38.00 },
+            { id: 44, nome: "LASANHA DE FRANGO", categoria: "Prato Principal", descricao: "Camadas de massa, frango desfiado, molho cremoso e queijo gratinado.", preco: 36.00 },
+            { id: 45, nome: "ESPAGUETE À BOLONHESA", categoria: "Prato Principal", descricao: "Espaguete ao molho de tomate com carne moída e parmesão ralado.", preco: 32.00 },
+            { id: 46, nome: "FETTUCCINE AO MOLHO ALFREDO", categoria: "Prato Principal", descricao: "Massa fettuccine com molho cremoso de queijo e parmesão.", preco: 30.00 },
+            { id: 47, nome: "PENNE COM FRANGO", categoria: "Prato Principal", descricao: "Penne ao molho cremoso com frango grelhado e ervas.", preco: 34.00 },
+            { id: 48, nome: "RISOTO DE CAMARÃO", categoria: "Prato Principal", descricao: "Arroz cremoso preparado com camarões, ervas e queijo parmesão.", preco: 48.00 },
+            { id: 49, nome: "CAMARÃO AO MOLHO CREMOSO", categoria: "Prato Principal", descricao: "Camarões salteados em molho cremoso, servidos com arroz branco e batata.", preco: 50.00 },
+            { id: 50, nome: "PEIXE GRELHADO", categoria: "Prato Principal", descricao: "Filé de peixe grelhado com arroz, legumes e molho de ervas.", preco: 38.00 },
+            { id: 51, nome: "PEIXE À MILANESA", categoria: "Prato Principal", descricao: "Filé de peixe empanado e crocante, acompanhado de arroz e batata frita.", preco: 36.00 },
+            { id: 52, nome: "PEIXE AO MOLHO DE CAMARÃO", categoria: "Prato Principal", descricao: "Filé de peixe grelhado coberto com molho cremoso de camarão.", preco: 48.00 },
+            { id: 53, nome: "MOQUECA DE PEIXE", categoria: "Prato Principal", descricao: "Peixe cozido com tomate, cebola, pimentão, leite de coco e azeite de dendê.", preco: 45.00 },
+            { id: 54, nome: "MOQUECA DE CAMARÃO", categoria: "Prato Principal", descricao: "Camarões cozidos com legumes, leite de coco e temperos especiais.", preco: 52.00 },
+            { id: 55, nome: "ARROZ DE CAMARÃO", categoria: "Prato Principal", descricao: "Arroz cremoso preparado com camarões, tomate, ervas e queijo.", preco: 45.00 },
+            { id: 56, nome: "BAIÃO DE DOIS COM CARNE DE SOL", categoria: "Prato Principal", descricao: "Arroz e feijão verde preparados com queijo coalho, carne de sol e temperos.", preco: 40.00 },
+            { id: 57, nome: "FEIJOADA COMPLETA", categoria: "Prato Principal", descricao: "Feijoada tradicional servida com arroz, farofa, couve e laranja.", preco: 38.00 },
+            { id: 58, nome: "COSTELA AO MOLHO BARBECUE", categoria: "Prato Principal", descricao: "Costela bovina assada lentamente e finalizada com molho barbecue.", preco: 48.00 },
+            { id: 59, nome: "PARAFUSO AO MOLHO DE CAMARÃO", categoria: "Prato Principal", descricao: "Massa parafuso com camarões salteados em molho cremoso de tomate.", preco: 42.00 },
+            { id: 60, nome: "PRATO DA CASA", categoria: "Prato Principal", descricao: "Arroz, feijão, carne grelhada, batata frita, farofa, salada e ovo.", preco: 35.00 },
+
+            // --- SOBREMESAS ---
+            { id: 61, nome: "PUDIM DE LEITE CONDENSADO", categoria: "Sobremesas", descricao: "Pudim cremoso de leite condensado com calda de caramelo.", preco: 12.00 },
+            { id: 62, nome: "MOUSSE DE CHOCOLATE", categoria: "Sobremesas", descricao: "Mousse cremosa de chocolate com textura leve e sabor intenso.", preco: 14.00 },
+            { id: 63, nome: "MOUSSE DE MARACUJÁ", categoria: "Sobremesas", descricao: "Mousse cremosa de maracujá com sabor doce e levemente azedinho.", preco: 13.00 },
+            { id: 64, nome: "MOUSSE DE LIMÃO", categoria: "Sobremesas", descricao: "Mousse leve e cremosa de limão finalizada com raspas da fruta.", preco: 13.00 },
+            { id: 65, nome: "BROWNIE COM SORVETE", categoria: "Sobremesas", descricao: "Brownie de chocolate servido com uma bola de sorvete de creme.", preco: 18.00 },
+            { id: 66, nome: "PETIT GÂTEAU", categoria: "Sobremesas", descricao: "Bolo de chocolate com recheio cremoso servido com sorvete de creme.", preco: 22.00 },
+            { id: 67, nome: "CHEESECAKE DE FRUTAS VERMELHAS", categoria: "Sobremesas", descricao: "Cheesecake cremoso com cobertura de frutas vermelhas.", preco: 20.00 },
+            { id: 68, nome: "CHEESECAKE DE MORANGO", categoria: "Sobremesas", descricao: "Cheesecake cremoso com calda de morango e pedaços da fruta.", preco: 20.00 },
+            { id: 69, nome: "TORTA DE CHOCOLATE", categoria: "Sobremesas", descricao: "Torta cremosa de chocolate com base crocante e cobertura de ganache.", preco: 18.00 },
+            { id: 70, nome: "TORTA DE LIMÃO", categoria: "Sobremesas", descricao: "Torta com creme de limão, base crocante e cobertura de merengue.", preco: 16.00 },
+            { id: 71, nome: "TORTA DE MORANGO", categoria: "Sobremesas", descricao: "Torta doce recheada com creme e coberta com morangos frescos.", preco: 18.00 },
+            { id: 72, nome: "BANOFFEE", categoria: "Sobremesas", descricao: "Torta de banana com doce de leite, chantilly e base crocante.", preco: 19.00 },
+            { id: 73, nome: "BROWNIE DE CHOCOLATE", categoria: "Sobremesas", descricao: "Brownie artesanal de chocolate com textura macia e sabor intenso.", preco: 14.00 },
+            { id: 74, nome: "BRIGADEIRO GOURMET", categoria: "Sobremesas", descricao: "Brigadeiro cremoso de chocolate preparado com ingredientes especiais.", preco: 8.00 },
+            { id: 75, nome: "BRIGADEIRO DE COLHER", categoria: "Sobremesas", descricao: "Brigadeiro cremoso servido no copinho e finalizado com chocolate.", preco: 10.00 },
+            { id: 76, nome: "DOCE DE LEITE COM QUEIJO", categoria: "Sobremesas", descricao: "Doce de leite cremoso acompanhado de fatias de queijo branco.", preco: 14.00 },
+            { id: 77, nome: "ROMEU E JULIETA", categoria: "Sobremesas", descricao: "Combinação tradicional de queijo branco com goiabada cremosa.", preco: 15.00 },
+            { id: 78, nome: "ARROZ DOCE", categoria: "Sobremesas", descricao: "Arroz doce cremoso preparado com leite, açúcar e canela.", preco: 10.00 },
+            { id: 79, nome: "CANJICA CREMOSA", categoria: "Sobremesas", descricao: "Canjica cremosa preparada com leite condensado, coco e canela.", preco: 11.00 },
+            { id: 80, nome: "PAVÊ DE CHOCOLATE", categoria: "Sobremesas", descricao: "Camadas de biscoito e creme de chocolate finalizadas com raspas de chocolate.", preco: 15.00 },
+            { id: 81, nome: "PAVÊ DE MORANGO", categoria: "Sobremesas", descricao: "Camadas de biscoito, creme e morangos frescos.", preco: 16.00 },
+            { id: 82, nome: "SALADA DE FRUTAS", categoria: "Sobremesas", descricao: "Seleção de frutas frescas da estação servidas em pedaços.", preco: 12.00 },
+            { id: 83, nome: "SALADA DE FRUTAS COM CREME", categoria: "Sobremesas", descricao: "Frutas frescas da estação acompanhadas de creme doce e leve.", preco: 15.00 },
+            { id: 84, nome: "SORVETE DE CHOCOLATE", categoria: "Sobremesas", descricao: "Duas bolas de sorvete de chocolate com cobertura de chocolate.", preco: 12.00 },
+            { id: 85, nome: "SORVETE DE CREME", categoria: "Sobremesas", descricao: "Duas bolas de sorvete de creme acompanhadas de calda especial.", preco: 12.00 },
+            { id: 86, nome: "AÇAÍ COM FRUTAS", categoria: "Sobremesas", descricao: "Açaí cremoso acompanhado de banana, morango e granola.", preco: 18.00 },
+            { id: 87, nome: "AÇAÍ COM LEITE CONDENSADO", categoria: "Sobremesas", descricao: "Açaí cremoso servido com leite condensado e granola.", preco: 17.00 },
+            { id: 88, nome: "CREME DE PAPAIA", categoria: "Sobremesas", descricao: "Creme gelado de mamão preparado com sorvete de creme.", preco: 16.00 },
+            { id: 89, nome: "COCADA CREMOSA", categoria: "Sobremesas", descricao: "Cocada cremosa preparada com coco fresco e leite condensado.", preco: 12.00 },
+            { id: 90, nome: "CHURROS COM DOCE DE LEITE", categoria: "Sobremesas", descricao: "Churros crocantes recheados com doce de leite e açúcar com canela.", preco: 16.00 },
+
+            // --- BEBIDAS ---
+            { id: 91, nome: "SUCO DE LARANJA", categoria: "Bebidas", descricao: "Suco natural de laranja preparado na hora.", preco: 10.00 },
+            { id: 92, nome: "SUCO DE LIMÃO", categoria: "Bebidas", descricao: "Suco natural de limão refrescante, servido gelado.", preco: 9.00 },
+            { id: 93, nome: "SUCO DE MARACUJÁ", categoria: "Bebidas", descricao: "Suco natural de maracujá com sabor refrescante e levemente azedinho.", preco: 10.00 },
+            { id: 94, nome: "SUCO DE MORANGO", categoria: "Bebidas", descricao: "Suco cremoso de morango preparado com frutas frescas.", preco: 12.00 },
+            { id: 95, nome: "SUCO DE ABACAXI", categoria: "Bebidas", descricao: "Suco natural de abacaxi servido bem gelado.", preco: 10.00 },
+            { id: 96, nome: "SUCO DE MANGA", categoria: "Bebidas", descricao: "Suco natural de manga com sabor doce e refrescante.", preco: 10.00 },
+            { id: 97, nome: "SUCO DE CAJU", categoria: "Bebidas", descricao: "Suco natural de caju com sabor marcante e refrescante.", preco: 10.00 },
+            { id: 98, nome: "LIMONADA SUÍÇA", categoria: "Bebidas", descricao: "Limão batido com água, gelo e leite condensado.", preco: 13.00 },
+            { id: 99, nome: "ÁGUA MINERAL", categoria: "Bebidas", descricao: "Água mineral natural servida gelada.", preco: 5.00 },
+            { id: 100, nome: "ÁGUA COM GÁS", categoria: "Bebidas", descricao: "Água mineral gaseificada servida gelada.", preco: 6.00 },
+            { id: 101, nome: "REFRIGERANTE COLA", categoria: "Bebidas", descricao: "Refrigerante sabor cola servido bem gelado.", preco: 7.00 },
+            { id: 102, nome: "REFRIGERANTE GUARANÁ", categoria: "Bebidas", descricao: "Refrigerante de guaraná servido bem gelado.", preco: 7.00 },
+            { id: 103, nome: "REFRIGERANTE LIMÃO", categoria: "Bebidas", descricao: "Refrigerante sabor limão servido bem gelado.", preco: 7.00 },
+            { id: 104, nome: "REFRIGERANTE LARANJA", categoria: "Bebidas", descricao: "Refrigerante sabor laranja servido bem gelado.", preco: 7.00 },
+            { id: 105, nome: "ÁGUA TÔNICA", categoria: "Bebidas", descricao: "Água tônica gaseificada, refrescante e levemente amarga.", preco: 8.00 },
+            { id: 106, nome: "ENERGÉTICO", categoria: "Bebidas", descricao: "Bebida energética servida gelada.", preco: 12.00 },
+            { id: 107, nome: "CHÁ GELADO DE LIMÃO", categoria: "Bebidas", descricao: "Chá preto gelado com limão e toque de açúcar.", preco: 9.00 },
+            { id: 108, nome: "CHÁ GELADO DE PÊSSEGO", categoria: "Bebidas", descricao: "Chá gelado com sabor suave de pêssego e toque adocicado.", preco: 9.00 },
+            { id: 109, nome: "CAFÉ EXPRESSO", categoria: "Bebidas", descricao: "Café expresso encorpado preparado na hora.", preco: 6.00 },
+            { id: 110, nome: "CAFÉ COM LEITE", categoria: "Bebidas", descricao: "Café quente combinado com leite cremoso.", preco: 8.00 },
+            { id: 111, nome: "CAPPUCCINO", categoria: "Bebidas", descricao: "Café cremoso com leite vaporizado e espuma de leite.", preco: 10.00 },
+            { id: 112, nome: "CHOCOLATE QUENTE", categoria: "Bebidas", descricao: "Bebida cremosa de chocolate servida quente.", preco: 12.00 },
+            { id: 113, nome: "CAIPIRINHA DE LIMÃO", categoria: "Bebidas", descricao: "Drink preparado com limão, açúcar, gelo e cachaça.", preco: 18.00 },
+            { id: 114, nome: "CAIPIRINHA DE MORANGO", categoria: "Bebidas", descricao: "Drink de morango com açúcar, gelo e cachaça.", preco: 20.00 },
+            { id: 115, nome: "CAIPIRINHA DE MARACUJÁ", categoria: "Bebidas", descricao: "Drink refrescante de maracujá, açúcar, gelo e cachaça.", preco: 20.00 },
+            { id: 116, nome: "MOJITO", categoria: "Bebidas", descricao: "Drink refrescante com rum, limão, hortelã, açúcar e água com gás.", preco: 22.00 },
+            { id: 117, nome: "SEX ON THE BEACH", categoria: "Bebidas", descricao: "Drink tropical preparado com vodka, licor de pêssego, laranja e cranberry.", preco: 24.00 },
+            { id: 118, nome: "PIÑA COLADA", categoria: "Bebidas", descricao: "Drink cremoso preparado com rum, abacaxi, coco e gelo.", preco: 25.00 },
+            { id: 119, nome: "MARGARITA", categoria: "Bebidas", descricao: "Drink clássico preparado com tequila, limão e licor de laranja.", preco: 24.00 },
+            { id: 120, nome: "DRINK TROPICAL SEM ÁLCOOL", categoria: "Bebidas", descricao: "Mistura refrescante de frutas tropicais, suco de laranja, abacaxi e grenadine.", preco: 16.00 },
+
+            // --- CARTA DE VINHOS ---
+            { id: 121, nome: "VINHO TINTO SECO", categoria: "Carta de Vinhos", descricao: "Vinho tinto seco, encorpado e equilibrado, ideal para carnes vermelhas.", preco: 65.00 },
+            { id: 122, nome: "VINHO TINTO SUAVE", categoria: "Carta de Vinhos", descricao: "Vinho tinto suave, de sabor frutado e agradável ao paladar.", preco: 58.00 },
+            { id: 123, nome: "VINHO TINTO CABERNET SAUVIGNON", categoria: "Carta de Vinhos", descricao: "Vinho de corpo médio, com notas de frutas vermelhas e taninos equilibrados.", preco: 78.00 },
+            { id: 124, nome: "VINHO TINTO MERLOT", categoria: "Carta de Vinhos", descricao: "Vinho macio e aromático, com notas de frutas maduras e toque de especiarias.", preco: 75.00 },
+            { id: 125, nome: "VINHO TINTO MALBEC", categoria: "Carta de Vinhos", descricao: "Vinho encorpado com aromas de frutas negras e final prolongado.", preco: 85.00 },
+            { id: 126, nome: "VINHO TINTO SYRAH", categoria: "Carta de Vinhos", descricao: "Vinho intenso e aromático, com notas de frutas escuras e especiarias.", preco: 82.00 },
+            { id: 127, nome: "VINHO TINTO PINOT NOIR", categoria: "Carta de Vinhos", descricao: "Vinho elegante e leve, com aromas de frutas vermelhas e notas delicadas.", preco: 90.00 },
+            { id: 128, nome: "VINHO BRANCO SECO", categoria: "Carta de Vinhos", descricao: "Vinho branco leve e refrescante, ideal para peixes e frutos do mar.", preco: 65.00 },
+            { id: 129, nome: "VINHO BRANCO SUAVE", categoria: "Carta de Vinhos", descricao: "Vinho branco suave, aromático e levemente adocicado.", preco: 58.00 },
+            { id: 130, nome: "VINHO BRANCO CHARDONNAY", categoria: "Carta de Vinhos", descricao: "Vinho branco equilibrado, com aromas frutados e toque refrescante.", preco: 78.00 },
+            { id: 131, nome: "VINHO BRANCO SAUVIGNON BLANC", categoria: "Carta de Vinhos", descricao: "Vinho branco fresco e aromático, com notas cítricas e herbáceas.", preco: 82.00 },
+            { id: 132, nome: "VINHO BRANCO MOSCATO", categoria: "Carta de Vinhos", descricao: "Vinho branco aromático, leve e levemente adocicado.", preco: 72.00 },
+            { id: 133, nome: "VINHO ROSÉ SECO", categoria: "Carta de Vinhos", descricao: "Vinho rosé refrescante, com aromas de frutas vermelhas e final equilibrado.", preco: 70.00 },
+            { id: 134, nome: "VINHO ROSÉ SUAVE", categoria: "Carta de Vinhos", descricao: "Vinho rosé leve, frutado e suavemente adocicado.", preco: 65.00 },
+            { id: 135, nome: "VINHO ROSÉ PREMIUM", categoria: "Carta de Vinhos", descricao: "Vinho rosé elegante e refrescante, com notas de frutas vermelhas.", preco: 88.00 },
+            { id: 136, nome: "ESPUMANTE BRUT", categoria: "Carta de Vinhos", descricao: "Espumante seco e refrescante, com borbulhas delicadas e final equilibrado.", preco: 85.00 },
+            { id: 137, nome: "ESPUMANTE MOSCATEL", categoria: "Carta de Vinhos", descricao: "Espumante aromático e adocicado, com notas florais e frutadas.", preco: 78.00 },
+            { id: 138, nome: "ESPUMANTE ROSÉ", categoria: "Carta de Vinhos", descricao: "Espumante rosé refrescante, com aromas de frutas vermelhas.", preco: 90.00 },
+            { id: 139, nome: "PROSECCO", categoria: "Carta de Vinhos", descricao: "Espumante italiano leve e refrescante, com aromas frutados e florais.", preco: 95.00 },
+            { id: 140, nome: "VINHO TINTO RESERVA", categoria: "Carta de Vinhos", descricao: "Vinho tinto encorpado e complexo, com notas de frutas maduras e madeira.", preco: 110.00 },
+            { id: 141, nome: "VINHO TINTO GRAN RESERVA", categoria: "Carta de Vinhos", descricao: "Vinho tinto sofisticado, com taninos elegantes e final longo.", preco: 145.00 },
+            { id: 142, nome: "VINHO BRANCO RESERVA", categoria: "Carta de Vinhos", descricao: "Vinho branco elegante e equilibrado, com aromas frutados e toque mineral.", preco: 105.00 },
+            { id: 143, nome: "VINHO ROSÉ RESERVA", categoria: "Carta de Vinhos", descricao: "Vinho rosé premium, fresco e aromático, com excelente equilíbrio.", preco: 100.00 },
+            { id: 144, nome: "VINHO TINTO ARGENTINO", categoria: "Carta de Vinhos", descricao: "Vinho argentino encorpado, com notas de frutas maduras e especiarias.", preco: 88.00 },
+            { id: 145, nome: "VINHO TINTO CHILENO", categoria: "Carta de Vinhos", descricao: "Vinho chileno equilibrado, com aromas frutados e taninos suaves.", preco: 82.00 },
+            { id: 146, nome: "VINHO BRANCO CHILENO", categoria: "Carta de Vinhos", descricao: "Vinho branco fresco e aromático, ideal para pratos leves e frutos do mar.", preco: 80.00 },
+            { id: 147, nome: "VINHO TINTO PORTUGUÊS", categoria: "Carta de Vinhos", descricao: "Vinho português encorpado, com aromas de frutas maduras e especiarias.", preco: 85.00 },
+            { id: 148, nome: "VINHO VERDE PORTUGUÊS", categoria: "Carta de Vinhos", descricao: "Vinho português leve, fresco e frutado, ideal para dias quentes.", preco: 78.00 },
+            { id: 149, nome: "VINHO TINTO ITALIANO", categoria: "Carta de Vinhos", descricao: "Vinho italiano elegante, com aromas de frutas vermelhas e notas de especiarias.", preco: 98.00 },
+            { id: 150, nome: "VINHO TINTO PREMIUM DA CASA", categoria: "Carta de Vinhos", descricao: "Vinho selecionado da casa, encorpado e elegante, ideal para ocasiões especiais.", preco: 130.00 }
+        ];
+
+        let pedido = [];
+
+        const divProdutos = document.getElementById('produtos');
+        const inputPesquisa = document.getElementById('pesquisa');
+        const selectFiltro = document.getElementById('filtro');
+        const listaPedido = document.getElementById('listaPedido');
+        const spanSubtotal = document.getElementById('subtotal');
+        const checkGarcom = document.getElementById('garcom');
+        const spanValorGarcom = document.getElementById('valorGarcom');
+        const spanTotal = document.getElementById('total');
+
+        function renderizarProdutos(lista) {
+            divProdutos.innerHTML = '';
+            
+            if (lista.length === 0) {
+                divProdutos.innerHTML = '<p>Nenhum produto encontrado.</p>';
+                return;
+            }
+
+            lista.forEach(produto => {
+                const card = document.createElement('div');
+                card.innerHTML = `
+                    <h3>${produto.nome}</h3>
+                    <p>${produto.descricao}</p>
+                    <p>R$ ${produto.preco.toFixed(2).replace('.', ',')}</p>
+                    <button onclick="adicionarAoPedido(${produto.id})">Adicionar</button>
+                    
+                `;
+                divProdutos.appendChild(card);
+            });
+        }
+
+        function filtrarProdutos() {
+            const termo = inputPesquisa.value.toLowerCase();
+            const categoriaSelecionada = selectFiltro.value;
+
+            const produtosFiltrados = produtos.filter(produto => {
+                const correspondeCategoria = (categoriaSelecionada === 'todos' || produto.categoria === categoriaSelecionada);
+                const correspondeTermo = produto.nome.toLowerCase().includes(termo) || produto.descricao.toLowerCase().includes(termo);
+                return correspondeCategoria && correspondeTermo;
+            });
+
+            renderizarProdutos(produtosFiltrados);
+        }
+
+        function adicionarAoPedido(id) {
+            const produto = produtos.find(p => p.id === id);
+            const itemExistente = pedido.find(item => item.id === id);
+
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                pedido.push({ ...produto, quantidade: 1 });
+            }
+
+            atualizarPedido();
+        }
+
+        function alterarQuantidade(id, quantidade) {
+            const item = pedido.find(p => p.id === id);
+            if (item) {
+                item.quantidade += quantidade;
+                if (item.quantidade <= 0) {
+                    pedido = pedido.filter(p => p.id !== id);
+                }
+            }
+            atualizarPedido();
+        }
+
+        function atualizarPedido() {
+            listaPedido.innerHTML = '';
+            let subtotal = 0;
+
+            if (pedido.length === 0) {
+                listaPedido.innerHTML = '<p>Seu pedido está vazio.</p>';
+            } else {
+                pedido.forEach(item => {
+                    const totalItem = item.preco * item.quantidade;
+                    subtotal += totalItem;
+
+                    const divItem = document.createElement('div');
+                    divItem.innerHTML = `
+                        <p><strong>Nome do produto:</strong> ${item.nome}</p>
+                        <p><strong>Quantidade:</strong> ${item.quantidade}</p>
+                        <p><strong>Valor unitário:</strong> R$ ${item.preco.toFixed(2).replace('.', ',')}</p>
+                        <p><strong>Valor total do item:</strong> R$ ${totalItem.toFixed(2).replace('.', ',')}</p>
+                        <button onclick="alterarQuantidade(${item.id}, -1)">-</button>
+                        <button onclick="alterarQuantidade(${item.id}, 1)">+</button>
+                        <hr>
+                    `;
+                    listaPedido.appendChild(divItem);
+                });
+            }
+
+            spanSubtotal.textContent = subtotal.toFixed(2).replace('.', ',');
+
+            const valorGarcom = checkGarcom.checked ? subtotal * 0.10 : 0;
+            spanValorGarcom.textContent = valorGarcom.toFixed(2).replace('.', ',');
+
+            const totalGeral = subtotal + valorGarcom;
+            spanTotal.textContent = totalGeral.toFixed(2).replace('.', ',');
+        }
+
+        // NOVO REQUISITO: Função simples para Finalizar Pedido
+        function finalizarPedido() {
+            const nomeCliente = document.getElementById('nomeCliente').value.trim();
+            const numeroMesa = document.getElementById('numeroMesa').value.trim();
+
+            if (!nomeCliente || !numeroMesa) {
+                alert('Por favor, preencha o Nome do Cliente e o Número da Mesa antes de finalizar!');
+                return;
+            }
+
+            if (pedido.length === 0) {
+                alert('Seu pedido está vazio! Adicione produtos antes de finalizar.');
+                return;
+            }
+
+            let resumo = `=== RESUMO DO PEDIDO ===\n\n`;
+            resumo += `Cliente: ${nomeCliente}\n`;
+            resumo += `Mesa: ${numeroMesa}\n\n`;
+            resumo += `Produtos Escolhidos:\n`;
+
+            pedido.forEach(item => {
+                const totalItem = (item.preco * item.quantidade).toFixed(2).replace('.', ',');
+                resumo += `- ${item.quantidade}x ${item.nome} (R$ ${totalItem})\n`;
+            });
+
+            resumo += `\nSubtotal: R$ ${spanSubtotal.textContent}\n`;
+            resumo += `Taxa do Garçom (10%): R$ ${spanValorGarcom.textContent}\n`;
+            resumo += `Valor Total: R$ ${spanTotal.textContent}`;
+
+            alert(resumo);
+        }
+
+        inputPesquisa.addEventListener('input', filtrarProdutos);
+        selectFiltro.addEventListener('change', filtrarProdutos);
+        checkGarcom.addEventListener('change', atualizarPedido);
+
+        renderizarProdutos(produtos);
+    </script>
+
+</body>
+
+</html>
